@@ -1,0 +1,73 @@
+<html>
+<head>
+<script id="vertexShader" type="x-shader/x-vertex">
+
+    varying vec3 vNormal;
+    varying vec3 vPosition;
+    varying vec2 vUv;
+    uniform float time;
+  
+    void main() {
+        vNormal = normalMatrix * vec3(normal);
+        vPosition = position;
+        vUv = uv;
+        vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+  
+        
+        gl_Position = projectionMatrix * mvPosition;
+    }
+</script>
+
+<script id="fragmentShader" type="x-shader/x-fragment">
+    varying vec3 vNormal;
+    varying vec3 vPosition;
+    varying vec2 vUv;
+    void main(void) {
+        
+      
+        vec3 light1 = vec3(1.0, 5.0, 1.0);
+        vec3 light2 = vec3(-1.0, 2.0, 4.0);
+  
+        vec3 lightDir = vec3(1.0, 5.0, 1.0);
+        
+        vec3 color = vec3(0.8, 0.8, 0.8);
+        if (mod(vUv.x, 0.05) < 0.01) {
+            color = vec3(1.0, 0.1, 0.1);
+        }
+        if (mod(vUv.y, 0.05) < 0.01) {
+            color = vec3(1.0, 0.1, 0.1);
+        }
+    
+        float A = 0.05;
+  
+        light1 = normalize(light1);
+        light2 = normalize(light2);
+        float bright1 = 0.7;
+        float bright2 = 0.5;
+        float L1 = max(0.0, dot(vNormal, light1)) * bright1;
+        float L2 = max(0.0, dot(vNormal, light2)) * bright2;
+        float L = L1 + L2;
+  
+  
+        vec3 view = cameraPosition - vPosition;
+        view = normalize(view);
+  
+        vec3 reflection = light1 - dot(light1, vNormal) * vNormal * 2.0;
+        reflection = normalize(reflection);      
+        float S1 = pow(dot(reflection, view), 10.0) * 1.0;
+        reflection = light2 - dot(light2, vNormal) * vNormal * 2.0;
+        reflection = normalize(reflection);
+        float S2 = pow(dot(reflection, view), 10.0) * 1.0;
+        float S = S1 + S2;
+        
+        gl_FragColor = vec4((L+ S + A) * color, 1.0);
+    }
+</script>
+
+<link rel="stylesheet" type="text/css" href="../css/styles.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r73/three.min.js"></script>
+<script src="https://dl.dropboxusercontent.com/u/3587259/Code/Threejs/OrbitControls.js"></script>
+<script type="text/javascript" src="../js/ThreeSetup.js"></script>
+</head>
+<body></body>
+</html>
